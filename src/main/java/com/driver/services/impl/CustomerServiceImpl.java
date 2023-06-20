@@ -2,7 +2,6 @@ package com.driver.services.impl;
 
 import com.driver.model.*;
 import com.driver.services.CustomerService;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +11,7 @@ import com.driver.repository.TripBookingRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
@@ -42,7 +42,38 @@ public class CustomerServiceImpl implements CustomerService {
 	public TripBooking bookTrip(int customerId, String fromLocation, String toLocation, int distanceInKm) throws Exception{
 		//Book the driver with lowest driverId who is free (cab available variable is Boolean.TRUE). If no driver is available, throw "No cab available!" exception
 		//Avoid using SQL query
-		return null;
+
+		Customer customer = customerRepository2.findById(customerId).get();
+
+		List<Driver> driverList = driverRepository2.findAll();
+		Driver driver = null;
+		int bill =0;
+		for(Driver driver1: driverList){
+			Cab cab = driver1.getCab();
+			if(cab.getAvailable() == Boolean.TRUE){
+				driver = driver1;
+				bill = cab.getPerKmRate() * distanceInKm;
+				break;
+			}
+		}
+		if(driver == null){
+			throw new Exception("No cab available!");
+		}
+		TripBooking tripBooking = new TripBooking();
+		tripBooking.setFromLocation(fromLocation);
+		tripBooking.setToLocation(toLocation);
+		tripBooking.setDistanceInKm(distanceInKm);
+		tripBooking.setStatus(TripStatus.CONFIRMED);
+		tripBooking.setBill(bill);
+
+		tripBookingRepository2.save(tripBooking);
+
+		customer.getTripBookingList().add(tripBooking);
+		driver.getTripBookingList().add(tripBooking);
+
+		customerRepository2.save(customer);
+		driverRepository2.save(driver);
+		return tripBooking;
 	}
 
 	@Override
