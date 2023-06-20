@@ -51,9 +51,10 @@ public class CustomerServiceImpl implements CustomerService {
 		for(Driver driver1: driverList){
 			Cab cab = driver1.getCab();
 			if(cab.getAvailable() == Boolean.TRUE){
-				driver = driver1;
-				bill = cab.getPerKmRate() * distanceInKm;
-				break;
+				if(driver == null || driver1.getDriverId() < driver.getDriverId()){
+					driver = driver1;
+					bill = cab.getPerKmRate() * distanceInKm;
+				}
 			}
 		}
 		if(driver == null){
