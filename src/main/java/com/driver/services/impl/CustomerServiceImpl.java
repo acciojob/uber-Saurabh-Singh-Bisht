@@ -40,7 +40,8 @@ public class CustomerServiceImpl implements CustomerService {
 
 	@Override
 	public TripBooking bookTrip(int customerId, String fromLocation, String toLocation, int distanceInKm) throws Exception{
-		//Book the driver with lowest driverId who is free (cab available variable is Boolean.TRUE). If no driver is available, throw "No cab available!" exception
+		//Book the driver with lowest driverId who is free (cab available variable is Boolean.TRUE).
+		// If no driver is available, throw "No cab available!" exception
 		//Avoid using SQL query
 
 		Customer customer = customerRepository2.findById(customerId).get();
@@ -51,7 +52,7 @@ public class CustomerServiceImpl implements CustomerService {
 		for(Driver driver1: driverList){
 			Cab cab = driver1.getCab();
 			if(cab.getAvailable() == Boolean.TRUE){
-				if(driver == null || driver1.getDriverId() < driver.getDriverId()){
+				if((driver == null) || (driver1.getDriverId() < driver.getDriverId())){
 					driver = driver1;
 					bill = cab.getPerKmRate() * distanceInKm;
 				}
